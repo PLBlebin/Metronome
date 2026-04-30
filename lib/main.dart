@@ -9,7 +9,7 @@ Future<void> main() async {
   final audioHandler = await AudioService.init<MetronomeAudioHandler>(
     builder: () => MetronomeAudioHandler(),
     config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.example.flutter_demo.metronome',
+      androidNotificationChannelId: 'com.metronome.app.audio',
       androidNotificationChannelName: '节拍器',
       androidNotificationIcon: 'mipmap/ic_launcher',
       androidShowNotificationBadge: true,
