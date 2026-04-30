@@ -10,6 +10,7 @@ import '../widgets/sound_panel.dart';
 import '../widgets/subdivision_panel.dart';
 import '../widgets/preset_panel.dart';
 import '../widgets/practice_mode_panel.dart';
+import '../widgets/settings_sheet.dart';
 
 class MetronomeScreen extends StatefulWidget {
   final MetronomeNotifier notifier;
@@ -33,6 +34,16 @@ class _MetronomeScreenState extends State<MetronomeScreen> {
           appBar: AppBar(
             title: const Text('节拍器'),
             centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () => showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) => SettingsSheet(notifier: _n),
+                ),
+              ),
+            ],
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

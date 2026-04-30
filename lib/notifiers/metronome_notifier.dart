@@ -118,4 +118,8 @@ class MetronomeNotifier extends ChangeNotifier {
     await _presetRepo.delete(name);
     await _loadPresets();
   }
+
+  Future<void> refreshPresets() async {
+    await _loadPresets();
+  }
 }
