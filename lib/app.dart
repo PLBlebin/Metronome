@@ -6,6 +6,7 @@ import 'services/pitch_detector.dart';
 import 'services/tuner_audio_service.dart';
 import 'ui/screens/metronome_screen.dart';
 import 'ui/screens/tuner_screen.dart';
+import 'ui/screens/fretboard_screen.dart';
 
 class MetronomeApp extends StatefulWidget {
   final MetronomeAudioHandler audioHandler;
@@ -57,6 +58,7 @@ class _MetronomeAppState extends State<MetronomeApp> {
           children: [
             MetronomeScreen(notifier: _metronomeNotifier),
             TunerScreen(notifier: _tunerNotifier),
+            FretboardScreen(tunerNotifier: _tunerNotifier),
           ],
         ),
         bottomNavigationBar: NavigationBar(
@@ -72,6 +74,11 @@ class _MetronomeAppState extends State<MetronomeApp> {
               icon: Icon(Icons.music_note),
               selectedIcon: Icon(Icons.music_note),
               label: '调音器',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.grid_on),
+              selectedIcon: Icon(Icons.grid_on),
+              label: '指板图',
             ),
           ],
         ),

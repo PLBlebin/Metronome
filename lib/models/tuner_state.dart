@@ -1,3 +1,4 @@
+import '../core/constants.dart';
 import 'note.dart';
 
 enum TunerMode { guitar, chromatic }
@@ -22,7 +23,7 @@ class TunerState {
     this.a4Reference = 440.0,
     this.mode = TunerMode.guitar,
     this.isPlayingReference = false,
-    this.volume = 0.8,
+    this.volume = kVolumeDefault,
   });
 
   TunerState copyWith({
@@ -38,13 +39,14 @@ class TunerState {
     bool clearFrequency = false,
     bool clearCents = false,
     bool clearDetectedNote = false,
+    bool clearTargetNote = false,
   }) {
     return TunerState(
       isListening: isListening ?? this.isListening,
       detectedFrequency: clearFrequency ? null : (detectedFrequency ?? this.detectedFrequency),
       detectedCents: clearCents ? null : (detectedCents ?? this.detectedCents),
       detectedNote: clearDetectedNote ? null : (detectedNote ?? this.detectedNote),
-      targetNote: targetNote ?? this.targetNote,
+      targetNote: clearTargetNote ? null : (targetNote ?? this.targetNote),
       a4Reference: a4Reference ?? this.a4Reference,
       mode: mode ?? this.mode,
       isPlayingReference: isPlayingReference ?? this.isPlayingReference,

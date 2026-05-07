@@ -36,3 +36,28 @@ List<Note> chromaticScale(double a4) {
   }
   return notes;
 }
+
+const List<String> kNoteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+Note getNoteOffset(Note base, int semitones, double a4) {
+  const a4Midi = 69;
+  // Frequency to MIDI
+  final baseMidi = (12.0 * (log(base.frequency / a4) / log(2)) + a4Midi).round();
+  final targetMidi = baseMidi + semitones;
+  
+  final freq = a4 * pow(2.0, (targetMidi - a4Midi) / 12.0);
+  final octave = (targetMidi ~/ 12) - 1;
+  final name = kNoteNames[targetMidi % 12];
+  
+  return Note(name, octave, freq);
+}
+
+List<List<Note>> guitarFretboard(double a4, {int fretCount = 22}) {
+  // Ordered from 6th (E2) to 1st (E4)
+  final baseStrings = guitarStrings(a4);
+  return baseStrings.map((openNote) {
+    return List.generate(fretCount + 1, (fret) {
+      return getNoteOffset(openNote, fret, a4);
+    });
+  }).toList();
+}

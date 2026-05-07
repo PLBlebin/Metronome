@@ -1,3 +1,4 @@
+import '../core/constants.dart';
 import 'enums.dart';
 
 class MetronomeState {
@@ -24,7 +25,7 @@ class MetronomeState {
     this.beatsPerMeasure = 4,
     this.noteValue = NoteValue.quarter,
     this.soundType = SoundType.tick,
-    this.volume = 0.8,
+    this.volume = kVolumeDefault,
     this.subdivision = Subdivision.quarter,
     this.isRunning = false,
     this.currentBeat = 0,

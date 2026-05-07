@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import '../models/note.dart';
 import '../core/music_constants.dart';
+import '../core/constants.dart';
 
 class TunerAudioService {
   final Map<String, AudioSource> _sources = {};
@@ -18,7 +19,7 @@ class TunerAudioService {
     }
   }
 
-  void playNote(Note note, {double volume = 0.8}) {
+  void playNote(Note note, {double volume = kVolumeDefault}) {
     final source = _sources[note.displayName];
     if (source == null) return;
     SoLoud.instance.play(source, volume: volume).then((h) => _handles.add(h));

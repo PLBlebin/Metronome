@@ -5,13 +5,13 @@ A Flutter metronome and tuner app.
 ## Features
 
 ### Metronome
-- BPM control (40-240)
+- BPM control (20-300)
 - Tap tempo
 - Time signatures (2/4, 3/4, 4/4, 5/4, 6/8, 7/8)
 - Subdivisions (quarter, eighth, triplet, sixteenth)
-- Multiple sound options (click, woodblock, beep)
+- Multiple sound options (tick, wood, electronic)
 - Preset save/load
-- Practice mode with warm-up phases
+- Practice mode with warm-up phases (Ramp/Mute modes)
 
 ### Tuner
 - Real-time pitch detection

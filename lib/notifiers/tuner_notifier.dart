@@ -40,6 +40,12 @@ class TunerNotifier extends ChangeNotifier {
   static const String _a4PrefKey = 'tuner_a4_reference';
 
   TunerNotifier(this._pitchDetector, this._audioService) {
+    // Initialize with default target note (E2)
+    final initialStrings = guitarStrings(_state.a4Reference);
+    if (initialStrings.isNotEmpty) {
+      _state = _state.copyWith(targetNote: initialStrings[0]);
+    }
+    
     _pitchDetector.pitchStream.listen(_onPitchDetected);
     _loadPreferences();
   }
@@ -47,7 +53,22 @@ class TunerNotifier extends ChangeNotifier {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final a4 = prefs.getDouble(_a4PrefKey) ?? 440.0;
-    _state = _state.copyWith(a4Reference: a4);
+    
+    Note? newTarget;
+    if (_state.targetNote != null) {
+      final strings = guitarStrings(a4);
+      for (final s in strings) {
+        if (s.name == _state.targetNote!.name && s.octave == _state.targetNote!.octave) {
+          newTarget = s;
+          break;
+        }
+      }
+    }
+
+    _state = _state.copyWith(
+      a4Reference: a4,
+      targetNote: newTarget,
+    );
     notifyListeners();
   }
 
@@ -93,10 +114,35 @@ class TunerNotifier extends ChangeNotifier {
     }
 
     // Reset the 1-second clear timer on every valid pitch.
-    // When user stops playing, the timer will fire after 1s and clear the note.
     _resetDisplayClearTimer();
-    final note = _findNearestNote(result.frequency);
-    final cents = _calculateCents(result.frequency, note.frequency);
+
+    Note note;
+    double cents;
+
+    if (_state.mode == TunerMode.guitar && _state.targetNote != null) {
+      // Locking mode: only detect the target note
+      final target = _state.targetNote!;
+      
+      // Calculate cents relative to the target note
+      cents = _calculateCents(result.frequency, target.frequency);
+      
+      // Filter: if detected frequency is too far from target (e.g. > 150 cents), ignore it
+      // This helps "filter out other tones" as requested.
+      if (cents.abs() > 150) {
+        if (_state.detectedNote != null) {
+          _state = _state.copyWith(clearFrequency: true, clearCents: true, clearDetectedNote: true);
+          _throttledNotify();
+        }
+        return;
+      }
+      
+      note = target;
+    } else {
+      // Automatic mode: find nearest note
+      note = _findNearestNote(result.frequency);
+      cents = _calculateCents(result.frequency, note.frequency);
+    }
+
     _state = _state.copyWith(
       detectedFrequency: result.frequency,
       detectedNote: note,
@@ -150,20 +196,51 @@ class TunerNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setTargetNote(Note note) {
-    _state = _state.copyWith(targetNote: note);
+  void setTargetNote(Note? note) {
+    if (note == null) {
+      _state = _state.copyWith(clearTargetNote: true);
+    } else {
+      _state = _state.copyWith(targetNote: note);
+    }
     notifyListeners();
   }
 
   void selectString(int index) {
-    if (index >= 0 && index < _guitarStrings.length) {
-      setTargetNote(_guitarStrings[index]);
+    final strings = _guitarStrings;
+    if (index >= 0 && index < strings.length) {
+      final selected = strings[index];
+      // Toggle logic: if same note is selected, deselect it
+      if (_state.targetNote != null &&
+          _state.targetNote!.name == selected.name &&
+          _state.targetNote!.octave == selected.octave) {
+        setTargetNote(null);
+      } else {
+        setTargetNote(selected);
+      }
     }
   }
 
   Future<void> setA4Reference(double hz) async {
     final clamped = hz.clamp(kA4Min, kA4Max);
-    _state = _state.copyWith(a4Reference: clamped, clearFrequency: true, clearCents: true, clearDetectedNote: true);
+    
+    Note? newTarget;
+    if (_state.targetNote != null) {
+      final strings = guitarStrings(clamped);
+      for (final s in strings) {
+        if (s.name == _state.targetNote!.name && s.octave == _state.targetNote!.octave) {
+          newTarget = s;
+          break;
+        }
+      }
+    }
+
+    _state = _state.copyWith(
+      a4Reference: clamped,
+      targetNote: newTarget,
+      clearFrequency: true,
+      clearCents: true,
+      clearDetectedNote: true,
+    );
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(_a4PrefKey, clamped);
     _throttledNotify();
